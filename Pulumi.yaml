@@ -1,5 +1,5 @@
 name: iac-application
-description: A minimal AWS TypeScript Pulumi program
+description: Deploy backend and frontend apps to the EKS cluster
 runtime:
   name: nodejs
   options:
