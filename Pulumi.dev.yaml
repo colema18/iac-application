@@ -1,2 +1,4 @@
 environment:
-  - iac-application/dev
+  name: coleman/iac-application/dev
+  imports:
+    - iac-application/dev

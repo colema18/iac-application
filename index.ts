@@ -7,6 +7,7 @@ const helloPulumiUiImageTag = config.require("helloPulumiUiImageTag");
 const helloPulumiAppImageTag = config.require("helloPulumiAppImageTag");
 
 
+
 // Reference outputs from the infra stack
 const infraStack = new pulumi.StackReference("coleman/iac-infra/dev"); 
 
@@ -23,7 +24,7 @@ const backend = new ServiceDeployment("backend", {
     provider,
     labels: { app: "backend" },
     replicas: 2,
-    image: "ghcr.io/colema18/hello-pulumi-app:${helloPulumiAppImageTag}",
+    image: `ghcr.io/colema18/hello-pulumi-app:${helloPulumiAppImageTag}`,
     containerPort: 5050,
     servicePort: 5050,
 });
@@ -39,7 +40,7 @@ const frontend = new ServiceDeployment("frontend", {
     provider,
     labels: { app: "frontend" },
     replicas: 2,
-    image: "ghcr.io/colema18/hello-pulumi-ui:${helloPulumiUiImageTag}",
+    image: `ghcr.io/colema18/hello-pulumi-ui:${helloPulumiUiImageTag}`,
     containerPort: 80,
     servicePort: 80,
     env: [{ name: "API_URL", value: apiUrl }],
