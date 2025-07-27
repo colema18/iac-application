@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 
 // Reference outputs from the infra stack
-const infraStack = new pulumi.StackReference("colema18/iac-infra/dev"); 
+const infraStack = new pulumi.StackReference("coleman/iac-infra/dev"); 
 // 👆 Replace org-name and stack name with yours
 
 const kubeconfig = infraStack.getOutput("kubeconfigOut");
