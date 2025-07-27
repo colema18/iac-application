@@ -1,2 +1,2 @@
 environment:
-  - coleman/environments/dev
+  - environments/dev
