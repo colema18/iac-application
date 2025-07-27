@@ -1,2 +1,3 @@
 environment:
   - environments/dev
+  - iac-application/dev
