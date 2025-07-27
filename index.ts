@@ -1,5 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+import ServiceDeployment from "./component-resources/service-deployment";
 
 // Reference outputs from the infra stack
 const infraStack = new pulumi.StackReference("coleman/iac-infra/dev"); 
@@ -12,89 +13,33 @@ const provider = new k8s.Provider("k8s-provider", {
 });
 
 // ------------------------
-// Backend Deployment & Service
+// Backend
 // ------------------------
+const backend = new ServiceDeployment("backend", {
+    provider,
+    labels: { app: "backend" },
+    replicas: 2,
+    image: "ghcr.io/colema18/hello-pulumi-app:1.02",
+    containerPort: 5050,
+    servicePort: 5050,
+});
 
-const backendLabels = { app: "backend" };
-
-const backEndDeployment = new k8s.apps.v1.Deployment("backend-deployment", {
-    spec: {
-        selector: { matchLabels: backendLabels },
-        replicas: 2,
-        template: {
-            metadata: { labels: backendLabels },
-            spec: {
-                containers: [
-                    {
-                        name: "backend",
-                        image: "ghcr.io/colema18/hello-pulumi-app:1.02",
-                        ports: [{ containerPort: 5050 }],
-                    },
-                ],
-            },
-        },
-    },
-}, { provider });
-
-const backEndService = new k8s.core.v1.Service("backend-service", {
-    spec: {
-        type: "LoadBalancer",
-        selector: backendLabels,
-        ports: [{ port: 5050, targetPort: 5050 }],
-    },
-}, { provider });
+export const backEndUrl = backend.url;
 
 // ------------------------
-// Frontend Deployment & Service
+// Frontend (depends on backend URL)
 // ------------------------
+const apiUrl = backend.url.apply(url => url.replace(/:\d+$/, ":5050"));
 
-const frontendLabels = { app: "frontend" };
+const frontend = new ServiceDeployment("frontend", {
+    provider,
+    labels: { app: "frontend" },
+    replicas: 2,
+    image: "ghcr.io/colema18/hello-pulumi-ui:1.02",
+    containerPort: 80,
+    servicePort: 80,
+    env: [{ name: "API_URL", value: apiUrl }],
+    dependsOn: [backend.service],
+});
 
-const apiUrl = backEndService.status.loadBalancer.ingress.apply(
-    (ingress) => ingress && ingress[0]?.hostname ? `http://${ingress[0].hostname}:5050` : ""
-);
-
-const frontEndDeployment = new k8s.apps.v1.Deployment("frontend-deployment", {
-    spec: {
-        selector: { matchLabels: frontendLabels },
-        replicas: 2,
-        template: {
-            metadata: {
-                labels: frontendLabels,
-                annotations: {
-                    "api-url-hash": apiUrl.apply((url) => Buffer.from(url).toString("base64")),
-                },
-            },
-            spec: {
-                containers: [
-                    {
-                        name: "frontend",
-                        image: "ghcr.io/colema18/hello-pulumi-ui:1.02",
-                        ports: [{ containerPort: 80 }],
-                        env: [{ name: "API_URL", value: apiUrl }],
-                    },
-                ],
-            },
-        },
-    },
-}, { provider, dependsOn: backEndService });
-
-const frontEndService = new k8s.core.v1.Service("frontend-service", {
-    spec: {
-        type: "LoadBalancer",
-        selector: frontendLabels,
-        ports: [{ port: 80, targetPort: 80 }],
-    },
-}, { provider });
-
-// ------------------------
-// Outputs
-// ------------------------
-
-export const backEndUrl = backEndService.status.loadBalancer.ingress.apply(
-    (ingress) => ingress && ingress[0]?.hostname ? `http://${ingress[0].hostname}:5050` : "pending..."
-);
-
-export const frontEndUrl = frontEndService.status.loadBalancer.ingress.apply(
-    (ingress) => ingress && ingress[0]?.hostname ? `http://${ingress[0].hostname}` : "pending..."
-);
+export const frontEndUrl = frontend.url;
