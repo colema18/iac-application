@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 import ServiceDeployment from "./component-resources/service-deployment";
 
-const config = new pulumi.Config();
+const config = new pulumi.Config("iac-application");
 const helloPulumiUiImageTag = config.require("helloPulumiUiImageTag");
 const helloPulumiAppImageTag = config.require("helloPulumiAppImageTag");
 
