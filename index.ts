@@ -81,5 +81,9 @@ const frontend = new ServiceDeployment("frontend", {
   ],
 });
 
+pulumi.log.info(`UI Image Tag: ${helloPulumiUiImageTag}`);
+pulumi.log.info(`App Image Tag: ${helloPulumiAppImageTag}`);
 
+export const uiImageTag = helloPulumiUiImageTag;
+export const appImageTag = helloPulumiAppImageTag;
 export const frontEndUrl = frontend.url;
