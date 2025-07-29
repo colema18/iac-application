@@ -14,13 +14,12 @@ const helloPulumiUiImageTag = config.require("helloPulumiUiImageTag");
 const helloPulumiAppImageTag = config.require("helloPulumiAppImageTag");
 
 // Reference outputs from the infra stack
-const infraStack = new pulumi.StackReference("coleman/iac-infra/dev"); 
-const appConfigRoleArn = infraStack.getOutput("appConfigRoleArn");
-const kubeconfig = infraStack.getOutput("kubeconfigOut");
+const infraStack = new pulumi.StackReference("coleman/iac-infra/dev");
 
 const provider = new k8s.Provider("k8s-provider", {
-    kubeconfig: kubeconfig.apply(JSON.stringify),
+  kubeconfig: infraStack.requireOutput("kubeconfigOut"),
 });
+const appConfigRoleArn = infraStack.getOutput("appConfigRoleArn");
 
 // ------------------------
 // Create Service Account with IRSA Role
