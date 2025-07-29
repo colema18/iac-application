@@ -2,13 +2,12 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 import ServiceDeployment from "./component-resources/service-deployment";
 
-const awsConfig = new pulumi.Config("aws");
-const region = awsConfig.require("region");
+const region = new pulumi.Config("aws").require("region");
+const environmentName = new pulumi.Config().require("environmentName");
 
 const appConfig = new pulumi.Config("iac-app-config");
 const applicationName = appConfig.require("applicationName");
 const profileName = appConfig.require("profileName");
-const environmentName = appConfig.require("environmentName");
 
 const config = new pulumi.Config();
 const helloPulumiUiImageTag = config.require("helloPulumiUiImageTag");
