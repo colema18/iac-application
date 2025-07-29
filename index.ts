@@ -44,7 +44,7 @@ const backend = new ServiceDeployment("backend", {
     image: `ghcr.io/colema18/hello-pulumi-app:${helloPulumiAppImageTag}`,
     containerPort: 5050,
     servicePort: 5050,
-    serviceAccountName: serviceAccount.metadata.name, // ✅ Added IRSA service account
+    serviceAccountName: serviceAccount.metadata.name,
     env: [
     { name: "AWS_REGION", value: region },
     { name: "AWS_APPCONFIG_APPLICATION", value: applicationName },
@@ -69,7 +69,7 @@ const frontend = new ServiceDeployment("frontend", {
   containerPort: 80,
   servicePort: 80,
   dependsOn: [backend.service],
-  serviceAccountName: serviceAccount.metadata.name, // ✅ IRSA
+  serviceAccountName: serviceAccount.metadata.name,
 
   env: [
     { name: "API_URL", value: apiUrl },

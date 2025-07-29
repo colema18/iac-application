@@ -10,7 +10,7 @@ export interface ServiceDeploymentArgs {
     servicePort: number;
     env?: pulumi.Input<k8s.types.input.core.v1.EnvVar[]>;
     dependsOn?: pulumi.Input<pulumi.Resource>[];
-    serviceAccountName?: pulumi.Input<string>; // ✅ New property
+    serviceAccountName?: pulumi.Input<string>; 
 }
 
 export default class ServiceDeployment extends pulumi.ComponentResource {
@@ -21,7 +21,6 @@ export default class ServiceDeployment extends pulumi.ComponentResource {
     constructor(name: string, args: ServiceDeploymentArgs, opts?: pulumi.ComponentResourceOptions) {
         super("custom:app:ServiceDeployment", name, {}, opts);
 
-        // ✅ Add serviceAccountName to the pod spec
         this.deployment = new k8s.apps.v1.Deployment(`${name}-deployment`, {
             spec: {
                 selector: { matchLabels: args.labels },
@@ -29,7 +28,7 @@ export default class ServiceDeployment extends pulumi.ComponentResource {
                 template: {
                     metadata: { labels: args.labels },
                     spec: {
-                        serviceAccountName: args.serviceAccountName, // ✅ Added here
+                        serviceAccountName: args.serviceAccountName,
                         containers: [
                             {
                                 name: name,
